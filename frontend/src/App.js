@@ -11,20 +11,20 @@ function App() {
     fetch('http://localhost:5000/questionnaire')  // Ensure this is your backend URL
       .then((response) => response.json())
       .then((data) => {
-        setQuestionnaire(data);
+        setQuestionnaire(data);  // Set the questionnaire data
         setIsLoading(false);
       })
       .catch((error) => console.error('Error fetching questionnaire:', error));
   }, []);
 
-  // Handle the form submission
+  // Handle form submission
   const handleSubmit = async (responses) => {
     const response = await fetch('http://localhost:5000/recommend', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ responses }),  // Send responses to backend
+      body: JSON.stringify({ responses }), // Send responses to backend
     });
 
     if (response.ok) {

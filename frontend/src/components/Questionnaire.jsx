@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 
 const QuestionnaireForm = ({ questionnaire, onSubmit }) => {
-  const [responses, setResponses] = useState({
-    mood: '',
-    symptoms: [],
-  });
+  const [responses, setResponses] = useState({});
 
-  // Handle the form changes
+  // Handle the form changes for single-select and multiple-select questions
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setResponses((prev) => ({
@@ -16,54 +13,64 @@ const QuestionnaireForm = ({ questionnaire, onSubmit }) => {
   };
 
   const handleCheckboxChange = (e) => {
-    const { value, checked } = e.target;
+    const { name, value, checked } = e.target;
     setResponses((prev) => {
-      const symptoms = checked
-        ? [...prev.symptoms, value]
-        : prev.symptoms.filter((symptom) => symptom !== value);
+      const updatedValue = checked
+        ? [...(prev[name] || []), value]  // Add value to array if checked
+        : prev[name].filter((item) => item !== value); // Remove value if unchecked
 
-      return { ...prev, symptoms };
+      return { ...prev, [name]: updatedValue };
     });
   };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(responses);  // Send the responses to the backend
+    onSubmit(responses);  // Send responses to backend
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>{questionnaire.mood}</h2>
-      <select
-        name="mood"
-        value={responses.mood}
-        onChange={handleInputChange}
-      >
-        <option value="">Select your mood</option>
-        <option value="stress">Stress</option>
-        <option value="calm">Calm</option>
-      </select>
+      <h2>{questionnaire.title}</h2>
 
-      <h3>{questionnaire.symptoms}</h3>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            value="focus issues"
-            onChange={handleCheckboxChange}
-          />
-          Focus Issues
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="migraine"
-            onChange={handleCheckboxChange}
-          />
-          Migraine
-        </label>
-      </div>
+      {questionnaire.questions.map((question) => (
+        <div key={question.id}>
+          <h3>{question.text}</h3>
+
+          {/* Single-choice questions */}
+          {question.type === 'single' && (
+            <select
+              name={question.id}
+              value={responses[question.id] || ''}
+              onChange={handleInputChange}
+            >
+              <option value="">Select your answer</option>
+              {question.options.map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Multiple-choice questions */}
+          {question.type === 'multiple' && (
+            <div>
+              {question.options.map((option, index) => (
+                <label key={index}>
+                  <input
+                    type="checkbox"
+                    name={question.id}
+                    value={option}
+                    onChange={handleCheckboxChange}
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
 
       <button type="submit">Submit</button>
     </form>

@@ -14,19 +14,31 @@ def questionnaires():
 
 @app.route('/recommend', methods=['POST'])
 def recommend():
-    data = request.get_json()  # Fixed the indentation here
+    data = request.get_json()
+
     # Extract responses from the questionnaire
     responses = data.get("responses", {})
-    
+
+    # Mapping inputs
     stress_level = map_stress_level(responses.get("mood"))
     adhd_symptoms = map_adhd_symptoms(responses.get("symptoms", []))
     migraine_frequency = map_migraine_frequency(responses.get("symptoms", []))
 
+    # Debugging outputs
+    print("DEBUG RESPONSES:")
+    print("Stress Level:", stress_level)
+    print("ADHD Symptoms:", adhd_symptoms)
+    print("Migraine Frequency:", migraine_frequency)
+
+    # Get recommendation
     recommendations = get_recommendation(stress_level, adhd_symptoms, migraine_frequency)
+    
+    print("FINAL RECOMMENDATIONS:", recommendations)
 
     return jsonify({
         "recommendations": recommendations
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
