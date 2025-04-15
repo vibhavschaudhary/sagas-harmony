@@ -1,15 +1,20 @@
 def get_recommendation(symptoms):
-    # Simple rule-based system
-    recommendations = []
+    RULES = {
+        "stress": ["binaural beats", "meditation music"],
+        "ADHD": ["lofi focus tracks", "white noise"],
+        "migraine": ["nature sounds", "soft ambient"],
+        "anxiety": ["calm piano", "ocean waves"],
+        "insomnia": ["sleep sounds", "delta waves"]
+    }
 
-    if "stress" in symptoms:
-        recommendations.append("binaural beats")
-    if "ADHD" in symptoms:
-        recommendations.append("lofi focus tracks")
-    if "migraine" in symptoms:
-        recommendations.append("nature sounds")
+    recommendations = set()
+
+    for symptom in symptoms:
+        therapies = RULES.get(symptom.lower())
+        if therapies:
+            recommendations.update(therapies)
 
     return {
-        "therapy": recommendations or ["default ambient music"],
+        "therapy": list(recommendations) or ["default ambient music"],
         "note": "Rule-based recommendation"
     }
